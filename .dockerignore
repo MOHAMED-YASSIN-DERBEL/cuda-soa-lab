@@ -1,0 +1,47 @@
+# .dockerignore - exclude unnecessary files from Docker build context
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Test data (optional - include if you want to generate inside container)
+*.npz
+matrix*.npz
+
+# Docker
+Dockerfile.devel
+docker-compose.yml
+
+# CI/CD
+.github/
+Jenkinsfile
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

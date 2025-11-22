@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  gpu-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gpu-matrix-service
+    ports:
+      - "8001:8001"  # FastAPI service
+      - "8000:8000"  # Prometheus metrics (Task 5)
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - STUDENT_PORT=8001
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ./data:/data  # Optional: mount data directory
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add Prometheus for local testing (Task 5)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   restart: unless-stopped

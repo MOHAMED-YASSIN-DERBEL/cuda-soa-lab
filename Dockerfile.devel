@@ -1,0 +1,48 @@
+# Alternative Dockerfile for CUDA development image (if compilation is needed)
+# This includes nvcc compiler for Path B (C/CUDA implementation)
+
+FROM nvidia/cuda:12.3.1-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    CUDA_VISIBLE_DEVICES=0
+
+# Install Python and build tools
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    python3.11-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
+
+WORKDIR /app
+
+# Copy requirements
+COPY pyproject.toml ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn[standard] \
+    numpy \
+    prometheus_client \
+    numba \
+    cuda-python \
+    python-multipart
+
+# Copy all application files
+COPY . .
+
+# Compile CUDA C code if it exists (for Path B)
+RUN if [ -f gpu_service.cu ]; then \
+    nvcc -Xcompiler -fPIC -shared -o libgpuadd.so gpu_service.cu; \
+    fi
+
+EXPOSE 8001 8002 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8001/health')" || exit 1
+
+CMD ["python", "main.py"]
