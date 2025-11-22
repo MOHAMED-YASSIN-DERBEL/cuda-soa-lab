@@ -14,7 +14,7 @@ import uvicorn
 app = FastAPI(title="GPU Matrix Addition Service")
 
 # Student port - change this to your assigned port
-STUDENT_PORT = 8001
+STUDENT_PORT = 8115
 
 
 @cuda.jit

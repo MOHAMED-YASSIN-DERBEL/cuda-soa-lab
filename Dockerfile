@@ -14,26 +14,23 @@ RUN apt-get update && apt-get install -y \
     python3.11 \
     python3-pip \
     python3.11-dev \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Create symbolic link for python
 RUN ln -s /usr/bin/python3.11 /usr/bin/python
 
+# Upgrade pip to latest version
+RUN python3.11 -m pip install --upgrade pip setuptools wheel
+
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY pyproject.toml ./
+# Copy requirements file
+COPY requirements.txt ./
 
 # Install Python dependencies
-RUN pip install --no-cache-dir \
-    fastapi \
-    uvicorn[standard] \
-    numpy \
-    prometheus_client \
-    numba \
-    cuda-python \
-    python-multipart
+RUN python3.11 -m pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY main.py ./
@@ -44,9 +41,9 @@ COPY create_test_matrices.py ./
 RUN mkdir -p /data
 
 # Expose ports
-# 8001: FastAPI service (change STUDENT_PORT in main.py if needed)
+# 8115: FastAPI service (student port)
 # 8000: Prometheus metrics (for Task 5)
-EXPOSE 8001 8000
+EXPOSE 8115 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
