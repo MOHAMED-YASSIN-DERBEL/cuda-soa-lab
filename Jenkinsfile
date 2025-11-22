@@ -7,7 +7,7 @@ pipeline {
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         CONTAINER_NAME = "gpu-service-${env.BUILD_NUMBER}"
         STUDENT_PORT = "8115"  // Change this to your assigned port
-        METRICS_PORT = "8000"
+        METRICS_PORT = "8116"  // Changed to avoid conflict with port 8000
         PYTHON_VERSION = "python3"
     }
 
